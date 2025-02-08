@@ -20,10 +20,18 @@ jobs:
           UPSTREAM_URL=$(jq -r '.parent.html_url' <<< $(curl -s "https://api.github.com/repos/${{ github.repository }}"))
           echo "UPSTREAM_URL=$UPSTREAM_URL" >> $GITHUB_ENV
 
-      - name: Sync Fork
+      - name: Add Upstream Remote
         run: |
           git remote add upstream $UPSTREAM_URL || true
           git fetch upstream
           git checkout main
+
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync Fork
+        run: |
           git merge upstream/main --allow-unrelated-histories
           git push origin main
