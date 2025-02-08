@@ -33,5 +33,5 @@ jobs:
 
       - name: Sync Fork
         run: |
-          git merge upstream/main --allow-unrelated-histories
+          git merge upstream/main --allow-unrelated-histories || git merge --abort
           git push origin main
