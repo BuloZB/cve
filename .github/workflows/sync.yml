@@ -14,24 +14,24 @@ jobs:
         with:
           fetch-depth: 0  # Aby sme mali celý git log
 
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Get Original Repository URL
         id: get_upstream
         run: |
           UPSTREAM_URL=$(jq -r '.parent.html_url' <<< $(curl -s "https://api.github.com/repos/${{ github.repository }}"))
           echo "UPSTREAM_URL=$UPSTREAM_URL" >> $GITHUB_ENV
 
-      - name: Add Upstream Remote
+      - name: Add Upstream Remote and Fetch
         run: |
           git remote add upstream $UPSTREAM_URL || true
           git fetch upstream
+
+      - name: Sync Fork with Upstream
+        run: |
           git checkout main
-
-      - name: Configure Git Identity
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Sync Fork
-        run: |
-          git merge upstream/main --allow-unrelated-histories || git merge --abort
+          git merge upstream/main --no-edit || git merge --abort
           git push origin main
